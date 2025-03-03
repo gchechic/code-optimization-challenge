@@ -1,0 +1,7 @@
+User,Amount,Merchant Name,Merchant State
+1,$1000.00,Amazon,CA
+1,$2000.00,Walmart,CA
+2,$300.00,Target,NY
+3,$15000.00,Best Buy,CA
+4,$500.00,Apple,CA
+5,$12000.00,Costco,CA
