@@ -7,7 +7,7 @@ users_df = pd.read_csv('sd254_users.csv')
 transactions_df = pd.read_csv('User0_credit_card_transactions.csv')
 
 # Clean up the 'Amount' column in transactions_df by removing '$' and converting to float
-transactions_df['Amount'] = transactions_df['Amount'].replace('[\$,]', '', regex=True).astype(float)
+transactions_df['Amount'] = transactions_df['Amount'].replace(r'[\$,]', '', regex=True).astype(float)
 
 users_df['User'] = users_df.index
 
@@ -25,7 +25,13 @@ cursor = conn.cursor()
 # Function to execute and display query results
 def execute_query(query, description):
     print(f"Executing: {description}\n")
+    explain_query = f"EXPLAIN QUERY PLAN {query}"
+    explain_result = pd.read_sql_query(explain_query, conn)
+    print("Execution Plan:")
+    print(explain_result)
+    print("\n" + "-"*50 + "\n")
     result = pd.read_sql_query(query, conn)
+    print("Query Result:")
     print(result)
     print("\n" + "-"*50 + "\n")
 
