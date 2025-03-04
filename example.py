@@ -29,6 +29,11 @@ cursor = conn.cursor()
 def execute_query(query, description):
     print(f"Executing: {description}\n")
     
+    # Disable SQLite caching
+    cursor.execute("PRAGMA cache_size = -64000")
+    cursor.execute("PRAGMA temp_store = MEMORY")
+    cursor.execute("PRAGMA synchronous = OFF")
+    
     # Measure execution time
     start_time = time.time()
     
