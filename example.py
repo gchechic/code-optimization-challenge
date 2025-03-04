@@ -1,5 +1,8 @@
 import pandas as pd
 import sqlite3
+import time
+import psutil
+from tabulate import tabulate
 
 # Load the CSV files into Pandas dataframes
 cards_df = pd.read_csv('sd254_cards.csv')
@@ -22,15 +25,44 @@ transactions_df.to_sql('User0_credit_card_transactions', conn, index=False, if_e
 # Cursor for executing queries
 cursor = conn.cursor()
 
-# Function to execute and display query results
+# Function to execute and display query results along with metrics
 def execute_query(query, description):
     print(f"Executing: {description}\n")
+    
+    # Measure execution time
+    start_time = time.time()
+    
+    # Measure resource usage before execution
+    process = psutil.Process()
+    before_cpu = process.cpu_percent(interval=None)
+    before_memory = process.memory_info().rss
+    
+    # Execute the query and get the execution plan
     explain_query = f"EXPLAIN QUERY PLAN {query}"
     explain_result = pd.read_sql_query(explain_query, conn)
     print("Execution Plan:")
     print(explain_result)
     print("\n" + "-"*50 + "\n")
+    
     result = pd.read_sql_query(query, conn)
+    
+    # Measure resource usage after execution
+    after_cpu = process.cpu_percent(interval=None)
+    after_memory = process.memory_info().rss
+    
+    # Calculate metrics
+    execution_time = time.time() - start_time
+    cpu_usage = after_cpu - before_cpu
+    memory_usage = after_memory - before_memory
+    
+    # Print metrics as a table
+    metrics = [
+        ["Execution Time (seconds)", f"{execution_time:.4f}"],
+        ["CPU Usage (%)", f"{cpu_usage:.2f}"],
+        ["Memory Usage (MB)", f"{memory_usage / (1024 * 1024):.2f}"]
+    ]
+    print(tabulate(metrics, headers=["Metric", "Value"], tablefmt="grid"))
+    
     print("Query Result:")
     print(result)
     print("\n" + "-"*50 + "\n")
