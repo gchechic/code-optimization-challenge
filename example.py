@@ -22,6 +22,11 @@ cards_df.to_sql('sd254_cards', conn, index=False, if_exists='replace')
 users_df.to_sql('sd254_users', conn, index=False, if_exists='replace')
 transactions_df.to_sql('User0_credit_card_transactions', conn, index=False, if_exists='replace')
 
+# Create indexes to optimize query performance
+conn.execute("CREATE INDEX idx_users_user ON sd254_users (User)")
+conn.execute("CREATE INDEX idx_transactions_user ON User0_credit_card_transactions (User)")
+conn.execute("CREATE INDEX idx_transactions_amount ON User0_credit_card_transactions (Amount)")
+
 # Cursor for executing queries
 cursor = conn.cursor()
 
@@ -84,12 +89,9 @@ execute_query(query_1, "Query 1")
 query_2 = """
 SELECT t.User, t.Amount, t.`Merchant Name`
 FROM User0_credit_card_transactions t
-JOIN (
-    SELECT u.User
-    FROM sd254_users u
-    WHERE u.`Current Age` > 50
-) u ON t.User = u.User
-WHERE t.Amount > 500;
+JOIN sd254_users u ON t.User = u.User
+WHERE u.`Current Age` > 50
+AND t.Amount > 500;
 """
 execute_query(query_2, "Query 2")
 
