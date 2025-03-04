@@ -68,19 +68,16 @@ def execute_query(query, description):
     print("\n" + "-"*50 + "\n")
 
 query_1 = """
-SELECT u.User, c.`Card Number`, 
-       (SELECT SUM(t.Amount)
-        FROM User0_credit_card_transactions t
-        WHERE t.User = u.User) as TotalSpent,
-       (SELECT MAX(t.Amount)
-        FROM User0_credit_card_transactions t
-        WHERE t.User = u.User) as MaxTransaction
+SELECT u.User, 
+       MAX(c.`Card Number`) as `Card Number`, 
+       SUM(t.Amount) as TotalSpent, 
+       MAX(t.Amount) as MaxTransaction
 FROM sd254_users u
 JOIN sd254_cards c ON u.User = c.User
+JOIN User0_credit_card_transactions t ON u.User = t.User
 WHERE c.`Card Type` = 'Credit'
-AND (SELECT SUM(t.Amount)
-     FROM User0_credit_card_transactions t
-     WHERE t.User = u.User) > 10000;
+GROUP BY u.User
+HAVING SUM(t.Amount) > 10000;
 """
 execute_query(query_1, "Query 1")
 
